@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AL XIKMA SCHOOL - Attendance</title>
-    <!-- Google Identity Services Library -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body { 
             font-family: 'Segoe UI', sans-serif; 
@@ -33,12 +31,10 @@
         #status { margin-top: 15px; font-weight: bold; font-size: 14px; }
         .success-msg { color: #2e7d32; }
         .success-msg h1 { font-size: 40px; margin-bottom: 10px; }
-        #google_btn { margin: 20px 0; display: flex; justify-content: center; }
         #timer { font-size: 12px; color: #999; margin-top: 10px; }
 
-        /* ✅ QAYBTA CUSUB: Qari foomka ilaa Google la xaqiijiyo */
-        #form-elements { display: none; }
-        #auth-header { display: block; }
+        /* ✅ QAYBTA LA BEDELAY: Foomka hadda waa display: block (waa muuqdaa) */
+        #form-elements { display: block; }
     </style>
 </head>
 <body>
@@ -47,19 +43,7 @@
     <img src="10754.jpg" alt="Logo" class="logo">
     <h2 id="displaySchoolName">AL XIKMA SCHOOL</h2>
     
-    <!-- ✅ QAYBTA 1-AAD: Marka hore badhanka Google -->
-    <div id="auth-header">
-        <p style="font-weight:bold; color:#2e7d32;">Fadlan marka hore Google ku gal</p>
-        <div id="google_btn">
-            <div id="g_id_onload"
-     data-client_id="816394140643-559uhlbd8ssif7cm0dmktq4d7fisiiqe.apps.googleusercontent.com"
-     data-callback="handleCredentialResponse">
-            </div>
-            <div class="g_id_signin" data-type="standard" data-size="large" data-width="300"></div>
-        </div>
-    </div>
-
-    <!-- ✅ QAYBTA 2-AAD: Xogta xaadirinta oo qarsoon -->
+    <!-- ✅ QAYBTA 2-AAD: Xogta xaadirinta oo hadda si toos ah u muuqata -->
     <div id="form-elements">
         <p>Xaadirinta Darawalada</p>
 
@@ -92,19 +76,7 @@
     
     let TEACHER_DB = {}; 
     let SETTINGS = {};
-    let loggedInEmail = ""; 
-
-    // ✅ BEDDELKA MUUQALKA: Marka Gmail-ka la qabto
-    function handleCredentialResponse(response) {
-        const responsePayload = JSON.parse(atob(response.credential.split('.')[1]));
-        loggedInEmail = responsePayload.email;
-        
-        // Tus foomka, qari badhanka Google
-        document.getElementById('auth-header').style.display = 'none';
-        document.getElementById('form-elements').style.display = 'block';
-        
-        console.log("Waa lagu gartay: " + loggedInEmail);
-    }
+    let loggedInEmail = "NO_GOOGLE_AUTH"; // Tan waxaa loo daayay si uusan koodhka kale u jabin
 
     db.ref('settings_bus').on('value', (snapshot) => {
         const data = snapshot.val();
