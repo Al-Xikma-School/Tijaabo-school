@@ -11,64 +11,79 @@
             justify-content: center; 
             align-items: center; 
             min-height: 100vh; 
-            /* Midab buluug aad u madow ah (Deep Navy Gradient) */
-            background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%); 
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); 
             margin: 0; 
         }
         .container { 
             background: white; 
             padding: 35px; 
-            border-radius: 25px; 
-            box-shadow: 0 20px 45px rgba(0,0,0,0.4); 
+            border-radius: 30px; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
             width: 360px; 
             text-align: center; 
-            /* Xariiq cagaar madow oo aad u weyn */
-            border-top: 10px solid #1a3a08;
+            /* Xariiq aad u dhumuc weyn oo madow iyo cagaar isugu jira */
+            border: 8px solid #1a3a08;
         }
         .logo { width: 110px; height: 110px; margin-bottom: 15px; border-radius: 50%; border: 4px solid #0d1b2a; }
         
-        /* Magaca Iskuulka oo buluug madow ah */
-        h2 { color: #0d1b2a; border-bottom: 4px solid #1a3a08; display: inline-block; padding-bottom: 5px; margin-top: 0; font-weight: 900; letter-spacing: 1px; }
+        h2 { color: #0d1b2a; border-bottom: 4px solid #1a3a08; display: inline-block; padding-bottom: 5px; margin-top: 0; font-weight: 900; text-transform: uppercase; }
         
-        /* Khaanadaha oo leh xuduud madow (Bold Borders) */
-        select, input { 
-            width: 100%; 
-            padding: 14px; 
-            margin: 12px 0; 
-            border: 3px solid #1b263b; 
+        /* --- QAYBTA DOORASHADA MAGACA (BULUUG DIG AH) --- */
+        #nameSelect { 
+            width: 100%; padding: 14px; margin: 12px 0; 
+            border: 4px solid #0d47a1; 
             border-radius: 12px; 
             font-size: 16px; 
-            box-sizing: border-box; 
-            background-color: #ffffff;
-            color: #0d1b2a;
-            font-weight: 600;
+            font-weight: 800;
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        /* --- QAYBTA DOORASHADA XAALADDA (CAGAAR DIG AH) --- */
+        #shiftSelect { 
+            width: 100%; padding: 14px; margin: 12px 0; 
+            border: 4px solid #1b5e20; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            font-weight: 800;
+            background-color: #e8f5e9;
+            color: #1b5e20;
+        }
+
+        /* --- QAYBTA PASSWORD-KA (GUDUUD DIG AH) --- */
+        #passInput { 
+            width: 100%; padding: 14px; margin: 12px 0; 
+            border: 4px solid #b71c1c; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            font-weight: 800;
+            background-color: #ffebee;
+            color: #b71c1c;
         }
         
-        /* Badhanka oo cagaar aad u dig ah (Solid Dark Green) */
         .submit-btn { 
             background: #1a3a08; 
             color: white; 
-            padding: 16px; 
+            padding: 18px; 
             border: none; 
-            border-radius: 12px; 
+            border-radius: 15px; 
             cursor: pointer; 
             width: 100%; 
-            font-size: 19px; 
+            font-size: 20px; 
             font-weight: 900; 
-            margin-top: 10px;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            margin-top: 15px;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3);
             text-transform: uppercase;
         }
         
-        button:disabled { background: #455a64 !important; cursor: not-allowed; opacity: 0.8; }
+        button:disabled { background: #455a64 !important; cursor: not-allowed; }
         
-        #status { margin-top: 15px; font-weight: 800; font-size: 16px; padding: 10px; border-radius: 8px; }
+        #status { margin-top: 20px; font-weight: 900; font-size: 17px; }
         
         .success-msg { color: #1a3a08; }
-        .success-msg h1 { font-size: 55px; margin-bottom: 10px; }
-        #timer { font-size: 14px; color: #1b263b; margin-top: 10px; font-weight: bold; }
-
-        p { color: #0d1b2a; font-weight: 800; margin-bottom: 5px; font-size: 17px; }
+        .success-msg h1 { font-size: 60px; margin-bottom: 10px; }
+        
+        p { color: #000; font-weight: 900; margin-bottom: 5px; font-size: 18px; text-decoration: underline; }
 
         #form-elements { display: block; }
     </style>
@@ -221,15 +236,15 @@
                             <h1 id="status-icon">⏳</h1>
                             <p><strong>Mudane Darawal ${name}</strong></p>
                             <p id="dynamic-msg"> Hal daqiiqo sug jawaabta...</p>
-                            <hr style="border: 0; border-top: 3px solid #0d1b2a; margin: 20px 0;">
-                            <p style="font-size: 16px; color: #0d1b2a; font-weight: 900;">${SETTINGS.footer_text || ""}</p>
-                            <p id="timer">Boggu wuxuu iskiis u xirmi doonaa...</p>
+                            <hr style="border: 0; border-top: 5px solid #0d1b2a; margin: 20px 0;">
+                            <p style="font-size: 18px; color: #0d1b2a; font-weight: 900;">${SETTINGS.footer_text || ""}</p>
+                            <p id="timer" style="font-weight: bold; color: #555;">Boggu wuxuu iskiis u xirmi doonaa...</p>
                         </div>`;
 
                     db.ref('drivers/' + uniqueId).on('value', (snapshot) => {
                         const data = snapshot.val();
                         if (data && data.display_msg) {
-                            document.getElementById('dynamic-msg').innerHTML = `<b style="color: #1a3a08; font-size: 18px;">${data.display_msg}</b>`;
+                            document.getElementById('dynamic-msg').innerHTML = `<b style="color: #1a3a08; font-size: 22px;">${data.display_msg}</b>`;
                             document.getElementById('status-icon').innerHTML = "✅";
                         }
                     });
