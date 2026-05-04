@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AL XIKMA SCHOOL - Attendance</title>
+    <!-- Google Identity Services Library -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        /* Midabka dhabarka (Background) oo cagaar khafif ah */
         body { 
             font-family: 'Segoe UI', sans-serif; 
             display: flex; 
@@ -24,13 +25,7 @@
             text-align: center; 
             border-top: 6px solid #2e7d32;
         }
-        /* Style-ka Logada */
-        .logo {
-            width: 100px;
-            height: 100px;
-            margin-bottom: 15px;
-            border-radius: 50%;
-        }
+        .logo { width: 100px; height: 100px; margin-bottom: 15px; border-radius: 50%; }
         h2 { color: #2c3e50; border-bottom: 2px solid #28a745; display: inline-block; padding-bottom: 5px; margin-top: 0; }
         select, input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; }
         .submit-btn { background-color: #28a745; color: white; padding: 15px; border: none; border-radius: 10px; cursor: pointer; width: 100%; font-size: 17px; font-weight: bold; margin-top: 10px; }
@@ -38,8 +33,7 @@
         #status { margin-top: 15px; font-weight: bold; font-size: 14px; }
         .success-msg { color: #2e7d32; }
         .success-msg h1 { font-size: 40px; margin-bottom: 10px; }
-        .success-msg p { font-size: 18px; color: #333; line-height: 1.5; }
-        /* Saacadda tiri xisaabta (Countdown) */
+        #google_btn { margin: 10px 0; display: flex; justify-content: center; }
         #timer { font-size: 12px; color: #999; margin-top: 10px; }
     </style>
 </head>
@@ -47,7 +41,6 @@
 
 <div class="container" id="mainContainer">
     <img src="10754.jpg" alt="Logo" class="logo">
-    
     <h2 id="displaySchoolName">AL XIKMA SCHOOL</h2>
     <p>Xaadirinta Darawalada</p>
 
@@ -65,7 +58,16 @@
 
     <input type="password" id="passInput" placeholder="Gali Password-kaaga">
 
-    <button id="submitBtn" class="btn submit-btn" disabled>Hubinta Goobta...</button>
+    <!-- Google Login Button Integration -->
+    <div id="google_btn">
+        <div id="g_id_onload"
+             data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+             data-callback="handleCredentialResponse">
+        </div>
+        <div class="g_id_signin" data-type="standard"></div>
+    </div>
+
+    <button id="submitBtn" class="submit-btn" disabled>Hubinta Goobta...</button>
     <div id="status"> Fadlan furo GPS-ka ama Location-ka...</div>
 </div>
 
@@ -73,16 +75,20 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-    // URL-ka Firebase-ka Darawalada
-    const firebaseConfig = {
-        databaseURL: "https://tijaabo-basas-default-rtdb.firebaseio.com/"
-    };
-
+    const firebaseConfig = { databaseURL: "https://tijaabo-basas-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     
     let TEACHER_DB = {}; 
     let SETTINGS = {};
+    let loggedInEmail = ""; // Halkan waxaa lagu kaydin doonaa Gmail-ka qofka
+
+    // Function-ka qabta Gmail-ka marka uu qofku Login sameeyo
+    function handleCredentialResponse(response) {
+        const responsePayload = JSON.parse(atob(response.credential.split('.')[1]));
+        loggedInEmail = responsePayload.email;
+        alert("Waa lagu gartay: " + loggedInEmail);
+    }
 
     db.ref('settings_bus').on('value', (snapshot) => {
         const data = snapshot.val();
@@ -108,13 +114,9 @@
     function parseTime(t) {
         if (!t) return 0;
         let timeStr = String(t);
-        if (timeStr.includes("T")) {
-            timeStr = timeStr.split("T")[1];
-        }
+        if (timeStr.includes("T")) timeStr = timeStr.split("T")[1];
         const parts = timeStr.split(':');
-        const h = parseInt(parts[0]) || 0;
-        const m = parseInt(parts[1]) || 0;
-        return h * 60 + m;
+        return (parseInt(parts[0]) || 0) * 60 + (parseInt(parts[1]) || 0);
     }
 
     function startGPSWatch() {
@@ -122,7 +124,6 @@
             const now = new Date();
             const currentTime = now.getHours() * 60 + now.getMinutes();
             const shift = document.getElementById('shiftSelect').value.toLowerCase();
-            
             const R = 6371; 
             const lat1 = pos.coords.latitude, lon1 = pos.coords.longitude;
             const dLat = (SETTINGS.lat - lat1) * Math.PI / 180;
@@ -132,51 +133,29 @@
 
             const status = document.getElementById('status');
             const submitBtn = document.getElementById('submitBtn');
-
-            let timeStatusMsg = "";
             let canSubmit = true;
+            let timeStatusMsg = "";
 
             if (String(SETTINGS.time_limit_on).toLowerCase() === "true" && shift !== "") {
                 let start, end;
-                
-                if (shift === "subax imaansho") {
-                    start = parseTime(SETTINGS.morn_start);
-                    end = parseTime(SETTINGS.morn_end);
-                } else if (shift === "subax bixitaan") {
-                    start = parseTime(SETTINGS.morn_out_start);
-                    end = parseTime(SETTINGS.morn_out_end);
-                } else if (shift === "galab imaansho") {
-                    start = parseTime(SETTINGS.aft_start);
-                    end = parseTime(SETTINGS.aft_end);
-                } else if (shift === "galab bixitaan") {
-                    start = parseTime(SETTINGS.aft_out_start);
-                    end = parseTime(SETTINGS.aft_out_end);
-                }
+                if (shift === "subax imaansho") { start = parseTime(SETTINGS.morn_start); end = parseTime(SETTINGS.morn_end); }
+                else if (shift === "subax bixitaan") { start = parseTime(SETTINGS.morn_out_start); end = parseTime(SETTINGS.morn_out_end); }
+                else if (shift === "galab imaansho") { start = parseTime(SETTINGS.aft_start); end = parseTime(SETTINGS.aft_end); }
+                else if (shift === "galab bixitaan") { start = parseTime(SETTINGS.aft_out_start); end = parseTime(SETTINGS.aft_out_end); }
 
-                if (currentTime < start) {
-                    timeStatusMsg = "❌ Lama gaarin waqtigii " + shift + ".";
-                    canSubmit = false;
-                } else if (currentTime > end) {
-                    timeStatusMsg = "❌ Waa la soo dhaafay waqtigii " + shift + ".";
-                    canSubmit = false;
-                }
+                if (currentTime < start) { timeStatusMsg = "❌ Lama gaarin waqtigii " + shift + "."; canSubmit = false; }
+                else if (currentTime > end) { timeStatusMsg = "❌ Waa la soo dhaafay waqtigii " + shift + "."; canSubmit = false; }
             }
 
             if (!canSubmit) {
-                status.innerText = timeStatusMsg;
-                status.style.color = "orange";
-                submitBtn.disabled = true;
-                submitBtn.innerText = "WAA XIRAN YAHAY";
+                status.innerText = timeStatusMsg; status.style.color = "orange";
+                submitBtn.disabled = true; submitBtn.innerText = "WAA XIRAN YAHAY";
             } else if (dist <= SETTINGS.radius) {
-                status.innerText = "✅ Hadda iskuulka waad joogtaa .";
-                status.style.color = "green";
-                submitBtn.disabled = false;
-                submitBtn.innerText = "XAADIRI";
+                status.innerText = "✅ Hadda iskuulka waad joogtaa ."; status.style.color = "green";
+                submitBtn.disabled = false; submitBtn.innerText = "XAADIRI";
             } else {
-                status.innerText = (SETTINGS.msg_far || "Ma joogtid iskuulka fadlan marka hore iskuulka tag") + " (" + (dist*1000).toFixed(0) + "m).";
-                status.style.color = "red";
-                submitBtn.disabled = true;
-                submitBtn.innerText = "HUBINTA GOOBTA...";
+                status.innerText = (SETTINGS.msg_far || "Ma joogtid iskuulka") + " (" + (dist*1000).toFixed(0) + "m).";
+                status.style.color = "red"; submitBtn.disabled = true; submitBtn.innerText = "HUBINTA GOOBTA...";
             }
         }, null, { enableHighAccuracy: true });
     }
@@ -185,8 +164,6 @@
         const name = document.getElementById('nameSelect').value;
         const shift = document.getElementById('shiftSelect').value;
         const pass = document.getElementById('passInput').value;
-        
-        // Qabashada moobiilka (Device ID)
         const moobilka = navigator.userAgent.match(/\(([^)]+)\)/) ? navigator.userAgent.match(/\(([^)]+)\)/)[1].split(';')[0] : "Lama Yaqaan";
 
         if (!name || !shift || !pass) return alert("Fadlan buuxi dhamaan khaanadaha!");
@@ -194,7 +171,6 @@
 
         const maanta = new Date().toLocaleDateString('en-GB');
 
-        // Halkan waxaa loo beddelay 'drivers'
         db.ref('drivers').orderByChild('name').equalTo(name).once('value', (snapshot) => {
             let horay_u_jiray = false;
             snapshot.forEach((child) => {
@@ -204,7 +180,7 @@
             });
 
             if (horay_u_jiray) {
-                alert("❌ Hore ayaad isugu xaadirisay " + shift + " maanta hal mar ayaa laguu ogol yahay maalintii!");
+                alert("❌ Hore ayaad isugu xaadirisay " + shift + " maanta!");
             } else {
                 const newRecordRef = db.ref('drivers').push();
                 const uniqueId = newRecordRef.key;
@@ -212,15 +188,16 @@
                 newRecordRef.set({
                     name: name,
                     email: TEACHER_DB[name].email || "",
+                    logged_in_email: loggedInEmail, // <--- Gmail-ka uu Google Login ku soo qabtay
                     shift: shift,
-                    device: moobilka, // <--- Tan ayaad ku dartay
+                    device: moobilka,
                     time: firebase.database.ServerValue.TIMESTAMP
                 }).then(() => {
                     document.getElementById('mainContainer').innerHTML = `
                         <div class="success-msg">
                             <h1 id="status-icon">⏳</h1>
                             <p><strong>Mudane Darawal ${name}</strong></p>
-                            <p id="dynamic-msg"> Mudane Darawal hal daqiiqo sug jawaabta...</p>
+                            <p id="dynamic-msg"> Hal daqiiqo sug jawaabta...</p>
                             <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
                             <p style="font-size: 12px; color: #666;">${SETTINGS.footer_text || ""}</p>
                             <p id="timer">Boggu wuxuu iskiis u xirmi doonaa...</p>
@@ -233,7 +210,6 @@
                             document.getElementById('status-icon').innerHTML = "✅";
                         }
                     });
-
                     setTimeout(() => { location.reload(); }, 300000); 
                 });
             }
