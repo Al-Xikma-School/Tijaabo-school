@@ -33,8 +33,12 @@
         #status { margin-top: 15px; font-weight: bold; font-size: 14px; }
         .success-msg { color: #2e7d32; }
         .success-msg h1 { font-size: 40px; margin-bottom: 10px; }
-        #google_btn { margin: 10px 0; display: flex; justify-content: center; }
+        #google_btn { margin: 20px 0; display: flex; justify-content: center; }
         #timer { font-size: 12px; color: #999; margin-top: 10px; }
+
+        /* ✅ QAYBTA CUSUB: Qari foomka ilaa Google la xaqiijiyo */
+        #form-elements { display: none; }
+        #auth-header { display: block; }
     </style>
 </head>
 <body>
@@ -42,33 +46,40 @@
 <div class="container" id="mainContainer">
     <img src="10754.jpg" alt="Logo" class="logo">
     <h2 id="displaySchoolName">AL XIKMA SCHOOL</h2>
-    <p>Xaadirinta Darawalada</p>
-
-    <select id="nameSelect">
-        <option value="">-- Sugaya Magacyada... --</option>
-    </select>
-
-    <select id="shiftSelect">
-        <option value="">-- Dooro Xaaladda --</option>
-        <option value="subax imaansho">Subax Imaansho</option>
-        <option value="subax bixitaan">Subax Bixitaan</option>
-        <option value="galab imaansho">Galab Imaansho</option>
-        <option value="galab bixitaan">Galab Bixitaan</option>
-    </select>
-
-    <input type="password" id="passInput" placeholder="Gali Password-kaaga">
-
-    <!-- Google Login Button Integration -->
-    <div id="google_btn">
-        <div id="g_id_onload"
-             data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
-             data-callback="handleCredentialResponse">
+    
+    <!-- ✅ QAYBTA 1-AAD: Marka hore badhanka Google -->
+    <div id="auth-header">
+        <p style="font-weight:bold; color:#2e7d32;">Fadlan marka hore Google ku gal</p>
+        <div id="google_btn">
+            <div id="g_id_onload"
+                 data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse">
+            </div>
+            <div class="g_id_signin" data-type="standard" data-size="large" data-width="300"></div>
         </div>
-        <div class="g_id_signin" data-type="standard"></div>
     </div>
 
-    <button id="submitBtn" class="submit-btn" disabled>Hubinta Goobta...</button>
-    <div id="status"> Fadlan furo GPS-ka ama Location-ka...</div>
+    <!-- ✅ QAYBTA 2-AAD: Xogta xaadirinta oo qarsoon -->
+    <div id="form-elements">
+        <p>Xaadirinta Darawalada</p>
+
+        <select id="nameSelect">
+            <option value="">-- Sugaya Magacyada... --</option>
+        </select>
+
+        <select id="shiftSelect">
+            <option value="">-- Dooro Xaaladda --</option>
+            <option value="subax imaansho">Subax Imaansho</option>
+            <option value="subax bixitaan">Subax Bixitaan</option>
+            <option value="galab imaansho">Galab Imaansho</option>
+            <option value="galab bixitaan">Galab Bixitaan</option>
+        </select>
+
+        <input type="password" id="passInput" placeholder="Gali Password-kaaga">
+
+        <button id="submitBtn" class="submit-btn" disabled>Hubinta Goobta...</button>
+        <div id="status"> Fadlan furo GPS-ka ama Location-ka...</div>
+    </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -81,13 +92,18 @@
     
     let TEACHER_DB = {}; 
     let SETTINGS = {};
-    let loggedInEmail = ""; // Halkan waxaa lagu kaydin doonaa Gmail-ka qofka
+    let loggedInEmail = ""; 
 
-    // Function-ka qabta Gmail-ka marka uu qofku Login sameeyo
+    // ✅ BEDDELKA MUUQALKA: Marka Gmail-ka la qabto
     function handleCredentialResponse(response) {
         const responsePayload = JSON.parse(atob(response.credential.split('.')[1]));
         loggedInEmail = responsePayload.email;
-        alert("Waa lagu gartay: " + loggedInEmail);
+        
+        // Tus foomka, qari badhanka Google
+        document.getElementById('auth-header').style.display = 'none';
+        document.getElementById('form-elements').style.display = 'block';
+        
+        console.log("Waa lagu gartay: " + loggedInEmail);
     }
 
     db.ref('settings_bus').on('value', (snapshot) => {
@@ -188,7 +204,7 @@
                 newRecordRef.set({
                     name: name,
                     email: TEACHER_DB[name].email || "",
-                    logged_in_email: loggedInEmail, // <--- Gmail-ka uu Google Login ku soo qabtay
+                    logged_in_email: loggedInEmail, 
                     shift: shift,
                     device: moobilka,
                     time: firebase.database.ServerValue.TIMESTAMP
