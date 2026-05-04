@@ -11,27 +11,60 @@
             justify-content: center; 
             align-items: center; 
             min-height: 100vh; 
-            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); 
+            /* Midab buluug ah oo dig ah (Deep Blue Gradient) */
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
             margin: 0; 
         }
         .container { 
             background: white; 
             padding: 30px; 
             border-radius: 20px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15); 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3); 
             width: 350px; 
             text-align: center; 
-            border-top: 6px solid #2e7d32;
+            /* Midab cagaar dig ah oo sare kaga yaal */
+            border-top: 8px solid #1b5e20;
         }
-        .logo { width: 100px; height: 100px; margin-bottom: 15px; border-radius: 50%; }
-        h2 { color: #2c3e50; border-bottom: 2px solid #28a745; display: inline-block; padding-bottom: 5px; margin-top: 0; }
-        select, input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; }
-        .submit-btn { background-color: #28a745; color: white; padding: 15px; border: none; border-radius: 10px; cursor: pointer; width: 100%; font-size: 17px; font-weight: bold; margin-top: 10px; }
-        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
-        #status { margin-top: 15px; font-weight: bold; font-size: 14px; }
-        .success-msg { color: #2e7d32; }
-        .success-msg h1 { font-size: 40px; margin-bottom: 10px; }
-        #timer { font-size: 12px; color: #999; margin-top: 10px; }
+        .logo { width: 100px; height: 100px; margin-bottom: 15px; border-radius: 50%; border: 3px solid #1e3c72; }
+        /* Magaca Iskuulka oo midab dig ah ah */
+        h2 { color: #0d47a1; border-bottom: 3px solid #1b5e20; display: inline-block; padding-bottom: 5px; margin-top: 0; font-weight: 800; }
+        
+        /* Khaanadaha (Inputs) oo xuduudooda la adkeeyey */
+        select, input { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 12px 0; 
+            border: 2px solid #2a5298; 
+            border-radius: 10px; 
+            font-size: 16px; 
+            box-sizing: border-box; 
+            background-color: #f8f9fa;
+        }
+        
+        /* Badhanka oo cagaar xooggan ah */
+        .submit-btn { 
+            background: linear-gradient(to right, #1b5e20, #2e7d32); 
+            color: white; 
+            padding: 15px; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            width: 100%; 
+            font-size: 18px; 
+            font-weight: bold; 
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .submit-btn:hover { background: #004d40; }
+        
+        button:disabled { background: #78909c !important; cursor: not-allowed; }
+        #status { margin-top: 15px; font-weight: bold; font-size: 15px; padding: 5px; border-radius: 5px; }
+        
+        .success-msg { color: #1b5e20; }
+        .success-msg h1 { font-size: 50px; margin-bottom: 10px; }
+        #timer { font-size: 13px; color: #546e7a; margin-top: 10px; font-style: italic; }
+
+        p { color: #37474f; font-weight: 600; margin-bottom: 5px; }
 
         /* ✅ QAYBTA LA BEDELAY: Foomka hadda waa display: block (waa muuqdaa) */
         #form-elements { display: block; }
@@ -136,14 +169,14 @@
             }
 
             if (!canSubmit) {
-                status.innerText = timeStatusMsg; status.style.color = "orange";
+                status.innerText = timeStatusMsg; status.style.color = "#e65100";
                 submitBtn.disabled = true; submitBtn.innerText = "WAA XIRAN YAHAY";
             } else if (dist <= SETTINGS.radius) {
-                status.innerText = "✅ Hadda iskuulka waad joogtaa ."; status.style.color = "green";
+                status.innerText = "✅ Hadda iskuulka waad joogtaa ."; status.style.color = "#1b5e20";
                 submitBtn.disabled = false; submitBtn.innerText = "XAADIRI";
             } else {
                 status.innerText = (SETTINGS.msg_far || "Ma joogtid iskuulka") + " (" + (dist*1000).toFixed(0) + "m).";
-                status.style.color = "red"; submitBtn.disabled = true; submitBtn.innerText = "HUBINTA GOOBTA...";
+                status.style.color = "#b71c1c"; submitBtn.disabled = true; submitBtn.innerText = "HUBINTA GOOBTA...";
             }
         }, null, { enableHighAccuracy: true });
     }
@@ -186,15 +219,15 @@
                             <h1 id="status-icon">⏳</h1>
                             <p><strong>Mudane Darawal ${name}</strong></p>
                             <p id="dynamic-msg"> Hal daqiiqo sug jawaabta...</p>
-                            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-                            <p style="font-size: 12px; color: #666;">${SETTINGS.footer_text || ""}</p>
+                            <hr style="border: 0; border-top: 2px solid #1e3c72; margin: 20px 0;">
+                            <p style="font-size: 14px; color: #0d47a1; font-weight: bold;">${SETTINGS.footer_text || ""}</p>
                             <p id="timer">Boggu wuxuu iskiis u xirmi doonaa...</p>
                         </div>`;
 
                     db.ref('drivers/' + uniqueId).on('value', (snapshot) => {
                         const data = snapshot.val();
                         if (data && data.display_msg) {
-                            document.getElementById('dynamic-msg').innerHTML = `<b>${data.display_msg}</b>`;
+                            document.getElementById('dynamic-msg').innerHTML = `<b style="color: #1b5e20;">${data.display_msg}</b>`;
                             document.getElementById('status-icon').innerHTML = "✅";
                         }
                     });
